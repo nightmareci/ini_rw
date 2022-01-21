@@ -46,11 +46,11 @@ ini_t *ini;
 ini_save(ini, "config.ini");
 ```
 
-The contents of an `ini_t*` object, in a string of the same format
-that would be stored in an actual .ini file, can be obtained by using the
-`ini_tostring()` function. With the ini data in hand, you can write it to a file
-however you want. The string must be freed with the C `free()` function, when
-you're done with it.
+The contents of an `ini_t*` object, in a string of the same format that would
+be stored in an actual .ini file, can be obtained by using the `ini_tostring()`
+function. With the ini data in hand, you can write it to a file however you
+want. The string must be freed with the C `free()` function, when you're done
+with it.
 ```c
 ini_t *ini;
 // create ini...
@@ -59,9 +59,9 @@ printf("%s\n", ini_str);
 free(ini_str);
 ```
 
-There are two functions for retrieving values: The first is `ini_get()`.
-Given a section and a key the corresponding value is returned if it exists.
-If the `section` argument is `NULL` then all sections are searched.
+There are two functions for retrieving values: The first is `ini_get()`.  Given
+a section and a key the corresponding value is returned if it exists.  If the
+`section` argument is `NULL` then all sections are searched.
 ```c
 const char *name = ini_get(config, "owner", "name");
 if (name) {
@@ -91,15 +91,21 @@ ini_sget(config, "database", "port", "%d", &port);
 printf("server: %s:%d\n", server, port);
 ```
 
-There are two functions for adding or changing values: The first is `ini_set()`.
-Given a section and a key the corresponding value is stored, replacing the previous
-value if it already existed. If you set a key to `NULL` or the empty string, the key is deleted.
+There are two functions for adding or changing values: The first is
+`ini_set()`.  Given a section and a key the corresponding value is stored,
+replacing the previous value if it already existed. If you set a key to `NULL`
+or the empty string, the key is deleted.  After calling a set function, strings
+returned from `ini_get()` are invalidated, because the set functions change the
+memory location of the memory where the strings are stored. So, when using set
+functions, keep that in mind and don't keep hold of strings from `ini_get()`,
+just make copies.
 ```c
 ini_set(config, "owner", "name", "Jane Doe");
 ```
 
-The second, `ini_pset()`, takes the same arguments as `ini_set()` with the addition of
-a printf format string and the format string's associated variable arguments list.
+The second, `ini_pset()`, takes the same arguments as `ini_set()` with the
+addition of a printf format string and the format string's associated variable
+arguments list.
 ```c
 ini_pset(config, "database", "server", "%s", "192.0.2.62");
 ini_pset(config, "database", "port", "%d", 80);
@@ -113,10 +119,11 @@ pointers returned by the library.
 ini_free(config);
 ```
 
-Some additional functions are available, that might be useful: `ini_merge()` and `ini_copy()`.
+Some additional functions are available, that might be useful: `ini_merge()`
+and `ini_copy()`.
 
-`ini_merge()` copies all the entries from one ini object into another, overwriting
-the preexisting keys in the process.
+`ini_merge()` copies all the entries from one ini object into another,
+overwriting the preexisting keys in the process.
 ```c
 ini_t *config;
 ini_t *extra_settings;
@@ -124,7 +131,8 @@ ini_t *extra_settings;
 ini_merge(config, extra_settings);
 ```
 
-`ini_copy()` creates a full copy of an `ini_t*` object. The copy must still be freed with `ini_free()`.
+`ini_copy()` creates a full copy of an `ini_t*` object. The copy must still be
+freed with `ini_free()`.
 ```c
 ini_t *ini = ini_load("config.ini");
 ini_t *copy_of_ini = ini_copy(ini);
