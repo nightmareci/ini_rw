@@ -2,13 +2,13 @@
  * Copyright (c) 2016 rxi
  *
  * This library is free software; you can redistribute it and/or modify it
- * under the terms of the MIT license. See `ini.c` for details.
+ * under the terms of the MIT license. See `ini_rw.c` for details.
  */
 
-#ifndef INI_H
-#define INI_H
+#ifndef INI_RW_H
+#define INI_RW_H
 
-#define INI_VERSION "0.1.1"
+#define INI_RW_VERSION "0.0.0"
 
 typedef struct ini_t ini_t;
 

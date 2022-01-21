@@ -1,10 +1,10 @@
 
-# ini
+# ini_rw
 A *tiny* ANSI C library for loading .ini config files
 
 ## Usage
-The files **[ini.c](src/ini.c?raw=1)** and **[ini.h](src/ini.h?raw=1)** should
-be dropped into an existing project.
+The files **[ini_rw.c](src/ini_rw.c?raw=1)** and **[ini_rw.h](src/ini_rw.h?raw=1)**
+should be dropped into an existing project.
 
 The library has support for sections, comment lines and quoted string values
 (with escapes). Unquoted values and keys are trimmed of whitespace when loaded.
