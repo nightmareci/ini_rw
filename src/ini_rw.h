@@ -10,7 +10,7 @@
 
 #include <stddef.h>
 
-#define INI_RW_VERSION "0.1.0"
+#define INI_RW_VERSION "0.1.1"
 
 typedef struct ini_t ini_t;
 

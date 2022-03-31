@@ -20,6 +20,7 @@
  * SOFTWARE.
  */
 
+#include <stdafx.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -279,6 +280,7 @@ fail:
 int ini_save(const ini_t *ini, const char *filename) {
   FILE *fp = NULL;
   char *p = ini->data;
+  int firstsection = 1;
 
   /* Open file */
   fp = fopen(filename, "wb");
@@ -289,6 +291,12 @@ int ini_save(const ini_t *ini, const char *filename) {
   /* Save ini struct to a file */
   while (p < ini->end) {
     if (*p == '[') {
+      if (firstsection) {
+        firstsection = 0;
+      }
+      else {
+        fputc('\n', fp);
+      }
       fprintf(fp, "%s]\n", p);
     }
     else {
@@ -325,13 +333,25 @@ fail:
 
 
 char* ini_tostring(const ini_t *ini) {
-  char* p;
+  if (ini->data == ini->end) {
+    return calloc(1u, sizeof(char));
+  }
 
+  char* p;
+  int firstsection;
+
+  firstsection = 1;
   const size_t nlsz = snprintf(NULL, 0u, "\n");
   p = ini->data;
   size_t sz = 0u;
   while (p < ini->end) {
     if (*p == '[') {
+      if (firstsection) {
+        firstsection = 0;
+      }
+      else {
+        sz++;
+      }
       sz += strlen(p) + 1 + nlsz;
     }
     else {
@@ -351,11 +371,18 @@ char* ini_tostring(const ini_t *ini) {
   }
   sz++;
 
+  firstsection = 1;
   p = ini->data;
   char* printout = malloc(sz);
   char* pos = printout;
   while (p < ini->end) {
     if (*p == '[') {
+      if (firstsection) {
+        firstsection = 0;
+      }
+      else {
+        pos += sprintf(pos, "\n");
+      }
       pos += sprintf(pos, "%s]", p);
       *pos = '\n';
       pos++;
@@ -567,23 +594,26 @@ int ini_set(ini_t *ini, const char *section, const char *key, const char *val) {
     }
     else {
       char *oldval = next(ini, p);
-      if (current_section && !strcmpci(key, p)) {
-        /* Remove the value */
-        if (!val || !strcmpci(val, "")) {
-          char *end = next(ini, oldval);
-          /* Value being removed is the last in the section, so remove the section too */
-          if (next(ini, current_section) == p && (end == ini->end || *end == '[')) {
-            return replace(ini, current_section, current_section, end - current_section, 0);
+      if (current_section) {
+        if (!strcmpci(key, p)) {
+          /* Remove the value */
+          if (!val || !strcmpci(val, "")) {
+            char* end = next(ini, oldval);
+            /* Value being removed is the last in the section, so remove the section too */
+            if (next(ini, current_section) == p && (end == ini->end || *end == '[')) {
+              return replace(ini, current_section, current_section, end - current_section, 0);
+            }
+            /* The section contains other values besides the one being removed, so only remove the requested key */
+            else {
+              return replace(ini, p, p, end - p, 0);
+            }
           }
-          /* The section contains other values besides the one being removed, so only remove the requested key */
+          /* Change the existing key's value to the input value */
           else {
-            return replace(ini, p, p, end - p, 0);
+            return replace(ini, oldval, val, strlen(oldval) + 1, strlen(val) + 1);
           }
         }
-        /* Change the existing key's value to the input value */
-        else {
-          return replace(ini, oldval, val, strlen(oldval) + 1, strlen(val) + 1);
-        }
+        p = next(ini, p);
       }
     }
 
