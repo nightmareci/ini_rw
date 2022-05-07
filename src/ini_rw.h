@@ -5,13 +5,13 @@
  * under the terms of the MIT license. See `ini_rw.c` for details.
  */
 
+#ifndef INI_RW_H
+#define INI_RW_H
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-
-#ifndef INI_RW_H
-#define INI_RW_H
 
 #include <stddef.h>
 
@@ -31,7 +31,8 @@ extern "C"
 	int         ini_set(ini_t* ini, const char* section, const char* key, const char* val); // If you set a key to NULL or an empty string, it's deleted from the INI.
 	int         ini_pset(ini_t* ini, const char* section, const char* key, const char* printfmt, ...);
 
-#endif
 #ifdef __cplusplus
 }
+#endif
+
 #endif
