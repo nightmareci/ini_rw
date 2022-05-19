@@ -727,6 +727,27 @@ int ini_erase(ini_t *ini, const char *section, const char *const *keys, const si
   return 1;
 }
 
+int ini_pset(ini_t* ini, const char* section, const char* key, const char* printfmt, ...) {
+  va_list args_list1;
+  va_start(args_list1, printfmt);
+  va_list args_list2;
+  va_copy(args_list2, args_list1);
+  const size_t sz = vsnprintf(NULL, 0, printfmt, args_list1);
+  va_end(args_list1);
+  char* val = malloc(sz + 1);
+  vsnprintf(val, sz + 1, printfmt, args_list2);
+  va_end(args_list2);
+  int success;
+  if (printfmt) {
+    success = ini_set(ini, section, key, val);
+  }
+  else {
+    success = 0;
+  }
+  free(val);
+  return success;
+}
+
 #ifdef __cplusplus
 }
 #endif
