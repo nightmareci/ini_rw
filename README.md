@@ -1,6 +1,6 @@
 
 # ini_rw
-A lightweight ANSI C library for working with .ini config files
+A lightweight C/C++ library for working with .ini config files
 
 ## Usage
 The files **[ini_rw.c](src/ini_rw.c?raw=1)** and **[ini_rw.h](src/ini_rw.h?raw=1)**

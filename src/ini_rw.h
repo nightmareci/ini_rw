@@ -8,6 +8,11 @@
 #ifndef INI_RW_H
 #define INI_RW_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <stddef.h>
 
 #define INI_RW_VERSION "0.1.2"
@@ -26,5 +31,9 @@ int         ini_sget(const ini_t *ini, const char *section, const char *key, con
 int         ini_set(ini_t *ini, const char *section, const char *key, const char *val); // If you set a key to NULL or an empty string, it's deleted from the INI.
 int         ini_pset(ini_t *ini, const char *section, const char *key, const char *printfmt, ...);
 int         ini_erase(ini_t *ini, const char *section, const char **keys, const size_t n); // Call with NULL section to erase all sections, call with a section and NULL keys to erase that section, call with a section and array of keys with n the number of keys in the array to erase only those keys.
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
