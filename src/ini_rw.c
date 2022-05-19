@@ -20,7 +20,6 @@
  * SOFTWARE.
  */
 
-#include <stdafx.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -554,15 +553,16 @@ static int replace(ini_t *ini, char *dst, const char *src, size_t dstsz, size_t 
 }
 
 int ini_set(ini_t *ini, const char *section, const char *key, const char *val) {
-  if (!ini || !section || !key || !val) {
+  if (!ini || !section || !key) {
     return 0;
   }
 
+  const char *val_valid = val ? val : "";
   char *current_section = NULL;
   char *p = ini->data;
   const size_t sectionsz = strlen(section) + 1;
   const size_t keysz = strlen(key) + 1;
-  const size_t valsz = strlen(val) + 1;
+  const size_t valsz = strlen(val_valid) + 1;
   const size_t keyvalsz = keysz + valsz;
 
   if (*p == '\0') {
@@ -580,7 +580,7 @@ int ini_set(ini_t *ini, const char *section, const char *key, const char *val) {
           return 0;
         }
         strncpy(keyval, key, keysz);
-        strncpy(keyval + keysz, val, valsz);
+        strncpy(keyval + keysz, val_valid, valsz);
         int success = replace(ini, section_start, keyval, 0, keyvalsz);
         free(keyval);
         return success;
@@ -597,7 +597,7 @@ int ini_set(ini_t *ini, const char *section, const char *key, const char *val) {
       if (current_section) {
         if (!strcmpci(key, p)) {
           /* Remove the value */
-          if (!val || !strcmpci(val, "")) {
+          if (!strcmpci(val_valid, "")) {
             char* end = next(ini, oldval);
             /* Value being removed is the last in the section, so remove the section too */
             if (next(ini, current_section) == p && (end == ini->end || *end == '[')) {
@@ -610,7 +610,7 @@ int ini_set(ini_t *ini, const char *section, const char *key, const char *val) {
           }
           /* Change the existing key's value to the input value */
           else {
-            return replace(ini, oldval, val, strlen(oldval) + 1, strlen(val) + 1);
+            return replace(ini, oldval, val_valid, strlen(oldval) + 1, strlen(val_valid) + 1);
           }
         }
         p = next(ini, p);
@@ -621,7 +621,7 @@ int ini_set(ini_t *ini, const char *section, const char *key, const char *val) {
   }
 
   /* Did not find the key previously, and requested the key be deleted, so just return if the value is empty. */
-  if (!val || !strcmpci(val, "")) {
+  if (!val_valid || !strcmpci(val_valid, "")) {
     return 1;
   }
 
@@ -634,7 +634,7 @@ int ini_set(ini_t *ini, const char *section, const char *key, const char *val) {
       return 0;
     }
     strncpy(keyval, key, keysz);
-    strncpy(keyval + keysz, val, valsz);
+    strncpy(keyval + keysz, val_valid, valsz);
     int success = replace(ini, section_start, keyval, 0, keyvalsz);
     free(keyval);
     return success;
@@ -649,7 +649,7 @@ int ini_set(ini_t *ini, const char *section, const char *key, const char *val) {
     new_section[0] = '[';
     strncpy(new_section + 1, section, sectionsz);
     strncpy(new_section + 1 + sectionsz, key, keysz);
-    strncpy(new_section + 1 + sectionsz + keysz, val, valsz);
+    strncpy(new_section + 1 + sectionsz + keysz, val_valid, valsz);
     int success = replace(ini, p, new_section, 0, new_sectionsz);
     free(new_section);
     return success;
@@ -675,4 +675,47 @@ int ini_pset(ini_t *ini, const char *section, const char *key, const char *print
   }
   free(val);
   return success;
+}
+
+int ini_erase(ini_t *ini, const char *section, const char *const *keys, const size_t n) {
+  if (!ini) {
+    return 0;
+  }
+
+  if (!section) {
+    /* Delete all sections */
+    free(ini->data);
+
+    ini->data = calloc(1u, 1u);
+    if (!ini->data) {
+      return 0;
+    }
+    ini->end = ini->data;
+  }
+  else if (!keys) {
+    /* Delete the entire section */
+    char* p = ini->data;
+
+    if (*p == '\0') {
+      p = next(ini, p);
+    }
+
+    while (p < ini->end) {
+      if (*p == '[' && !strcmpci(p + 1, section)) {
+        char* start = p;
+        for (p = next(ini, p); p < ini->end && *p != '['; p = next(ini, p));
+        return replace(ini, start, start, p - start, 0);
+      }
+      p = next(ini, p);
+    }
+  }
+  else if (n > 0u) {
+    /* Delete only the keys requested */
+    for (size_t i = 0u; i < n; i++) {
+      if (!ini_set(ini, section, keys[i], "")) {
+        return 0;
+      }
+    }
+  }
+  return 1;
 }

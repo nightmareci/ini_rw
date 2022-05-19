@@ -10,7 +10,7 @@
 
 #include <stddef.h>
 
-#define INI_RW_VERSION "0.1.1"
+#define INI_RW_VERSION "0.1.2"
 
 typedef struct ini_t ini_t;
 
@@ -25,5 +25,6 @@ const char* ini_get(const ini_t *ini, const char *section, const char *key);
 int         ini_sget(const ini_t *ini, const char *section, const char *key, const char *scanfmt, ...); // Returns the number of fields successfully read or EOF if there was an error in processing.
 int         ini_set(ini_t *ini, const char *section, const char *key, const char *val); // If you set a key to NULL or an empty string, it's deleted from the INI.
 int         ini_pset(ini_t *ini, const char *section, const char *key, const char *printfmt, ...);
+int         ini_erase(ini_t *ini, const char *section, const char **keys, const size_t n); // Call with NULL section to erase all sections, call with a section and NULL keys to erase that section, call with a section and array of keys with n the number of keys in the array to erase only those keys.
 
 #endif

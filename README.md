@@ -119,8 +119,8 @@ pointers returned by the library.
 ini_free(config);
 ```
 
-Some additional functions are available, that might be useful: `ini_merge()`
-and `ini_copy()`.
+Some additional functions are available, that might be useful: `ini_merge()`,
+`ini_copy()`, and `ini_erase()`.
 
 `ini_merge()` copies all the entries from one ini object into another,
 overwriting the preexisting keys in the process.
@@ -138,6 +138,32 @@ ini_t *ini = ini_load("config.ini");
 ini_t *copy_of_ini = ini_copy(ini);
 ini_free(ini);
 ini_free(copy_of_ini);
+```
+
+`ini_erase()` offers a few options for erasing values in an `ini_t` object.
+
+The arguments passed to `ini_erase()` take precedence left-to-right, so the
+leftmost pointer argument that is `NULL` ends the argument processing and
+selects a mode of erasure.
+
+A `NULL` value for the section erases all sections, leaving the `ini_t` object
+entirely empty, but still usable with value changing functions later:
+```c
+ini_erase(config, NULL, NULL, 0u);
+```
+
+A `NULL` value for the array of key names erases an entire section and all its
+keys:
+```c
+ini_erase(config, "database", NULL, 0u);
+```
+
+A convenience option for deleting an array of keys is provided. This can be
+accomplished yourself by deleting keys with `ini_set()`, but this erasure mode
+can be handy:
+```c
+const char *keys[2] = { "port", "file" };
+ini_erase(config, "database", keys, 2u);
 ```
 
 ## License
