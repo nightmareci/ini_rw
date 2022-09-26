@@ -15,7 +15,7 @@ extern "C"
 
 #include <stddef.h>
 
-#define INI_RW_VERSION "0.1.2"
+#define INI_RW_VERSION "0.1.3"
 
 typedef struct ini_t ini_t;
 
