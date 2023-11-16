@@ -565,7 +565,7 @@ int ini_set(ini_t* ini, const char* section, const char* key, const char* val) {
 		return 0;
 	}
 
-	if (!val || !strcmp(val, "") && !ini_get(ini, section, key)) {
+	if (!val || (!strcmp(val, "") && !ini_get(ini, section, key))) {
 		return 1;
 	}
 
